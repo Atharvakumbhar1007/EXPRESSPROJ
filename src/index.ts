@@ -3,38 +3,84 @@ import type { Request, Response } from "express";
 
 const app = express();
 
-// Application settings
-app.set("appName", "My Express App");
+const PORT: number = parseInt(process.env.PORT || "3000", 10);
 
-// Home Route
-app.get("/", (req: Request, res: Response) => {
-    res.status(200).send("OK");
+interface Product {
+    id: number;
+    name: string;
+    price: number;
+}
+
+interface OrderLine {
+    id: number;
+    pid: number;
+    qty: number;
+    rate: number;
+}
+
+app.use(express.json());
+
+const products: Product[] = [
+    { id: 1, name: "Pen", price: 50 },
+    { id: 2, name: "Pencil", price: 20 },
+    { id: 3, name: "Ruler", price: 100 }
+];
+
+const orderLines: OrderLine[] = [
+    { id: 1, pid: 1, qty: 50, rate: 20 },
+    { id: 2, pid: 1, qty: 50, rate: 18 },
+    { id: 10, pid: 3, qty: 39, rate: 90 }
+];
+
+app.get("/products", (req: Request, res: Response) => {
+    res.json(products);
 });
 
-// App Name Route
-app.get("/name", (req: Request, res: Response) => {
-    res.send("Application Name: " + app.get("appName"));
+app.get("/products", (req: Request, res: Response) =>{
+    const {name, price} = req.body;
+ if(!name ||price === undefined){
+        return res.status(400).json({error:"Name  and price not found"});
+    }
+    else{
+        let p:Product = {
+            id:products.length + 1,
+            name, price
+        };
+        products.push(p);
+        return res.status(201).json({message:"Product created"});
+    }
 });
 
-// HTML Response Route
-app.get("/html", (req: Request, res: Response) => {
-    res.send("<h1>Hi There</h1>");
+app.get("/products/:id",(req:Request, res:Response) =>{
+    const id = parseInt(req.params.id as string, 10);
+    const prod = products.find(p => p.id === id);
+
+    if(!prod){
+        return res.status(404).json({error:"Product not found"});
+    }
+    else{
+        return res.json(prod);
+    }
 });
 
-// Buffer Response Route
-app.get("/buffer", (req: Request, res: Response) => {
-    res.send(Buffer.from("buffer data"));
+app.get("/products/:id/orders", (req: Request, res: Response) => {
+    const id = parseInt(req.params.id as string, 10);
+    const prod = products.find(p => p.id === id);
+    if(!prod){
+        return res.status(404).json({error:"Product not found"});
+    }
+    else{
+        return res.json(orderLines.filter(line => line.pid === id));
+    }
+});
+app.patch("/products/1",(req: Request, res: Response) =>{
+
 });
 
-// JSON API Route
-app.get("/api/status", (req: Request, res: Response) => {
-    res.json({
-        status: "Running",
-        timeStamp: new Date().toISOString()
-    });
+app.delete("/products/1",(req: Request, res: Response) =>{
+    res.json({action:"DELETE - remove a product", received:req.body});
 });
 
-// Start Server
-app.listen(3000, () => {
-    console.log("Server running on http://localhost:3000");
+app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
 });

@@ -15,29 +15,38 @@ const orderLines = [
 app.get("/products", (req, res) => {
     res.json(products);
 });
-app.get("/products", (req, res) => {
+app.post("/products", (req, res) => {
     const { name, price } = req.body;
     if (!name || price === undefined) {
-        return res.status(400).json({ error: "Name  and price not found" });
+        return res.status(400).json({
+            error: "Name and price are required"
+        });
     }
-    else {
-        let p = {
-            id: products.length + 1,
-            name, price
-        };
-        products.push(p);
-        return res.status(201).json({ message: "Product created" });
-    }
+    const p = {
+        id: products.length + 1,
+        name,
+        price
+    };
+    products.push(p);
+    return res.status(201).json({
+        message: "Product created",
+        product: p
+    });
 });
-app.get("/products/:id", (req, res) => {
+app.patch("/products/:id", (req, res) => {
     const id = parseInt(req.params.id, 10);
-    const prod = products.find(p => p.id === id);
-    if (!prod) {
-        return res.status(404).json({ error: "Product not found" });
+    const product = products.find(p => p.id === id);
+    if (!product) {
+        return res.status(404).json({
+            error: "Product not found"
+        });
     }
-    else {
-        return res.json(prod);
-    }
+    const { name, price } = req.body;
+    if (name !== undefined)
+        product.name = name;
+    if (price !== undefined)
+        product.price = price;
+    return res.json(product);
 });
 app.get("/products/:id/orders", (req, res) => {
     const id = parseInt(req.params.id, 10);
