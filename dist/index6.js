@@ -7,21 +7,23 @@ const users = [
         id: 1, name: "Atharva", email: "atharva@gmail.com"
     }
 ];
-//GET
+// GET ALL USERS
 app.get("/users", (req, res) => {
     res.json(users);
 });
 ;
 // GET USER BY ID
-app.get("/users", (req, res) => {
+app.get("/users/:id", (req, res) => {
     const user = users.find(u => u.id === Number(req.params.id));
     if (!user) {
-        return res.status(404).json({ message: "User not found" });
+        return res.status(404).json({
+            message: "User not found"
+        });
     }
-    res.json(user);
+    return res.json(user);
 });
 // CREATE USER
-app.get("/users/:id", (req, res) => {
+app.post("/users", (req, res) => {
     const id = parseInt(req.params.id, 10);
     const { name, email } = req.body;
     const newUser = {
@@ -35,8 +37,8 @@ app.get("/users/:id", (req, res) => {
         user: newUser
     });
 });
-// EDIT USER
-app.get("/users/:id/orders", (req, res) => {
+// EDIT / UPDATE USER
+app.patch("/users/:id", (req, res) => {
     const user = users.find(u => u.id === Number(req.params.id));
     if (!user) {
         return res.status(404).json({ message: "User not found" });
@@ -49,7 +51,7 @@ app.get("/users/:id/orders", (req, res) => {
     });
 });
 // DELETE USER
-app.delete("/users/1", (req, res) => {
+app.delete("/users/:id", (req, res) => {
     const index = users.findIndex(u => u.id === Number(req.params.id));
     if (index === -1) {
         return res.status(404).json({ message: "User not found" });

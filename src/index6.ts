@@ -19,24 +19,29 @@ const users: User[] = [
     }
 ];
 
-//GET
-app.get("/users", (req: Request, res: Response) => {
+// GET ALL USERS
+app.get("/users",(req: Request, res: Response) => {
     res.json(users);
 });;
 
 // GET USER BY ID
-app.get("/users/:id", (req: Request, res: Response) =>{
-    const user = users.find(u => u.id === Number(req.params.id));
+app.get("/users/:id", (req: Request, res: Response) => {
+    const user = users.find(
+        u => u.id === Number(req.params.id)
+    );
 
     if (!user) {
-        return res.status(404).json({ message: "User not found" });
+        return res.status(404).json({
+            message: "User not found"
+        });
     }
 
-    res.json(user);
+    return res.json(user);
 });
 
+
 // CREATE USER
-app.get("/users",(req:Request, res:Response) =>{
+app.post("/users",(req:Request, res:Response) =>{
     const id = parseInt(req.params.id as string, 10);
     const { name, email } = req.body;
 
@@ -54,8 +59,8 @@ app.get("/users",(req:Request, res:Response) =>{
     });
 });
 
-// EDIT USER
-app.get("/users/:id", (req: Request, res: Response) => {
+// EDIT / UPDATE USER
+app.patch("/users/:id", (req: Request, res: Response) => {
     const user = users.find(u => u.id === Number(req.params.id));
 
     if (!user) {
